@@ -1,63 +1,65 @@
 ﻿namespace bowl
 
 module Bowling =
-    type NonLastFrame =
+    type Frame =
         | Normal of int * int
         | Spare of int
         | Strike
-    
-    type LastFrame =
-        | Normal of int * int
-        | WithBonus of int * int * int
-        
-    type Frame =
-        | NonLast of NonLastFrame
-        | Last of LastFrame
-    
-    type Game = {
-        Frames: NonLastFrame list
-        LastFrame: LastFrame
-    }
-    
-    type Remainder = Game
-    
-    let restOf game =
-        let rem =
-            match game.Frames with
-            | head::rest -> rest
-            | [] -> []
-        { Frames = rem; LastFrame = game.LastFrame }
-        
-    let nextTwoRolls game =
-        match game.Frames with
-        | head::rest -> match head with
-                        | NonLastFrame.Normal (a, b) -> a, b
-                        | Spare a -> a, 10 - a
-                        | Strike -> match rest with
-                                    | head::rest -> match head with
-                                                    | NonLastFrame.Normal (a, b) -> 10, a
-                                                    | Spare a -> 10, a
-                                                    | Strike -> 10, 10
-                                    | [] -> 10, match game.LastFrame with
-                                                | Normal (a, b) -> a
-                                                | WithBonus (a, b, c) -> a
-        | [] -> match game.LastFrame with
-                | Normal (a, b) -> a, b
-                | WithBonus (a, b, c) -> a, b
-        
-    let scoreNonLast frame remainder =
-        let c, d = nextTwoRolls remainder
-        match frame with
-        | NonLastFrame.Normal (a, b) -> a + b
-        | Spare pins -> 10 + c
-        | Strike -> 10 + c + d
-        
-    let scoreLast (frame:LastFrame) =
-        match frame with
-        | Normal (a, b) -> a + b
-        | WithBonus (a, b, c) -> a + b + c
-        
-    let scoreGame game =
-        let framesScore = game.Frames |> List.map scoreNonLast |> List.sum
-        let lastFrameScore = scoreLast game.LastFrame
-        framesScore + lastFrameScore
+        | Last of int * int * int
+
+    // let next2Rolls rest =
+    //     match rest with
+    //     | [] -> failwith "no!"
+    //     | Normal (a,b) :: rest -> a,b
+    //     | Spare a :: rest -> a, 10 - a
+    //     | Last (a,b,c) :: rest -> a,b
+    //     | Strike :: rest ->
+    //         match rest with
+    //         | [] -> failwith "Npoo"
+    //         | Normal (a,b) :: rest -> 10, a
+    //         | Spare a :: rest -> 10, a
+    //         | Strike :: rest -> 10, 10
+    //         | Last (a,b,c) :: rest -> 10, a
+
+    let scoreFrame frame rest =
+        let baseScore =
+            match frame with
+            | Normal (a, b) -> a + b
+            | Last (a, b, c) -> a + b + c
+            | Spare _ -> 10
+            | Strike -> 10
+        let additionalScore =
+            match frame with
+            | Normal _ -> 0
+            | Last _ -> 0
+            | Spare _ ->
+                match rest with
+                | [] -> failwith "last frame can't be a spare"
+                | next :: rest ->
+                    match next with
+                    | Normal (a, _) -> a
+                    | Last (a,_,_) -> a
+                    | Spare a -> a
+                    | Strike -> 10
+            | Strike ->
+                match rest with
+                | [] -> failwith "last frame can't be a strike"
+                | Normal (a,b) :: _ -> a + b
+                | Last (a,b,c) :: _ -> a + b
+                | Spare _ :: _ -> 10
+                | Strike :: rest -> 10 +
+                    match rest with
+                    | [] -> failwith "last frame can't be a strike"
+                    | Normal (a,_)::_ -> a
+                    | Last (a,_,_)::_ -> a
+                    | Spare a::_ -> a
+                    | Strike::_ -> 10
+        baseScore + additionalScore
+
+    let rec scoreFrames (frames: Frame list) =
+        match frames with
+        | [] -> 0
+        | _ ->
+            let next = List.head frames
+            let rest = List.tail frames
+            scoreFrame next rest + scoreFrames rest
