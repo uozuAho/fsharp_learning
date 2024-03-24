@@ -8,4 +8,9 @@ module MyRange =
     type Range = Endpoint * Endpoint
 
     let contains range value =
-        true
+        let (start, stop) = range
+        match start, stop with
+        | Open s, Open e -> s < value && value < e
+        | Open s, Closed e -> s < value && value <= e
+        | Closed s, Open e -> s <= value && value < e
+        | Closed s, Closed e -> s <= value && value <= e
