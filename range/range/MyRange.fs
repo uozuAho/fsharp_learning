@@ -23,7 +23,7 @@ module MyRange =
             | Closed x, Open y
             | Open x, Closed y
             | Open x, Open y ->
-                if x = y then failwith "Open range cannot be degenerate"
+                if x = y then invalidArg "" "Open range cannot be degenerate"
                 else Range(a, b)
 
     let contains (range:Range) value =
