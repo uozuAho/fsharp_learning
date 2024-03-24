@@ -1,24 +1,36 @@
 module Tests
 
 open Xunit
+open FsCheck
 open FsCheck.Xunit
 open range.MyRange
 
-[<Fact>]
-let ``[2,6) contains {2,4}`` () =
-    let range = Range.create(Closed 2, Open 6)
-    Assert.True(contains range 2)
-    Assert.True(contains range 4)
-
-[<Fact>]
-let ``[2,6) doesn’t contain {-1,1,6,10}`` () =
-    let range = Range.create(Closed 2, Open 6)
-    Assert.False(contains range -1)
-    Assert.False(contains range 1)
-    Assert.False(contains range 6)
-    Assert.False(contains range 10)
+let validRangePairs =
+    Arb.generate<int>
+    |> Gen.two
+    |> Gen.map(fun (a, b) -> if a > b then (b, a) else (a, b))
+    |> Arb.fromGen
 
 [<Property>]
-let ``[a,b) contains a`` (a: int, b: int) =
-    let range = Range.create(Closed a, Open b)
-    contains range a
+let ``[a,b] contains a and b`` () =
+    let n = validRangePairs
+    Prop.forAll n (fun (a, b) ->
+        let range = Range.create(Closed a, Closed b)
+        contains range a && contains range b
+    )
+
+[<Property>]
+let ``(a,b) does not contain a or b`` () =
+    let n = validRangePairs
+    Prop.forAll n (fun (a, b) ->
+        let range = Range.create(Open a, Open (b + 1))
+        not (contains range a) && not (contains range b)
+    )
+
+[<Property>]
+let ``(a, b+2) contains a + 1`` () =
+    let n = validRangePairs
+    Prop.forAll n (fun (a, b) ->
+        let range = Range.create(Open a, Open (b + 2))
+        contains range (a + 1)
+    )
