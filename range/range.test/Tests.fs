@@ -35,12 +35,27 @@ let ``create from string`` () =
     | _ -> Assert.Fail("Invalid range")
 
 [<Property>]
-let ``same ranges are equal`` (a: int, b: int) =
-    let range1 = Range.tryCreate(Closed a, Closed b)
-    let range2 = Range.tryCreate(Closed a, Closed b)
-    match range1, range2 with
-    | Some r1, Some r2 -> Assert.Equal(r1, r2)
-    | _ -> Assert.Fail("Invalid range")
+let ``same ranges are equal`` () =
+    let n = validRangePairs
+    Prop.forAll n (fun (a, b) ->
+        let start =
+            if a = b then Gen.constant (Closed a)
+            else Gen.oneof [ gen { return Open a }; gen { return Closed a} ]
+            |> Arb.fromGen
+        let end_ =
+            if a = b then Gen.constant (Closed b)
+            else Gen.oneof [ gen { return Open b }; gen { return Closed b} ]
+            |> Arb.fromGen
+        Prop.forAll start (fun start ->
+            Prop.forAll end_ (fun end_ ->
+                let range1 = Range.tryCreate(start, end_)
+                let range2 = Range.tryCreate(start, end_)
+                match range1, range2 with
+                | Some r1, Some r2 -> Assert.Equal(r1, r2)
+                | _ -> Assert.Fail("Invalid range")
+            )
+        )
+    )
 
 [<Property>]
 let ``[a,b] contains a and b`` () =
