@@ -64,5 +64,7 @@ module MyRange =
     let overlaps (range1:Range, range2:Range) =
         let a1, b1 = range1.a, range1.b
         let a2, b2 = range2.a, range2.b
-        contains_e (range1, a2) || contains_e (range1, b2) ||
-        contains_e (range2, a1) || contains_e (range2, b1)
+        contains_e (range1, a2) // crap, broken: both contain open 6
+        || contains_e (range1, b2)
+        || contains_e (range2, a1)
+        || contains_e (range2, b1)
