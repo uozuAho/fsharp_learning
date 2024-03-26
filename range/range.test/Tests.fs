@@ -87,3 +87,11 @@ let ``(a, b+2) contains a + 1`` () =
         | Some range -> contains range (a + 1)
         | None -> Assert.Fail("Invalid range"); false
     )
+
+[<Fact>]
+let ``(3, 6) overlaps (4, 7)`` () =
+    let range1 = Range.tryCreate(Open 3, Open 6)
+    let range2 = Range.tryCreate(Open 4, Open 7)
+    match range1, range2 with
+    | Some r1, Some r2 -> Assert.True(overlaps (r1, r2))
+    | _ -> Assert.Fail("Invalid range")

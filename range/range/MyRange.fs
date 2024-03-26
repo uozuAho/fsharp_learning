@@ -48,3 +48,21 @@ module MyRange =
         | Open s, Closed e -> s < value && value <= e
         | Closed s, Open e -> s <= value && value < e
         | Closed s, Closed e -> s <= value && value <= e
+
+    let private contains_e (range:Range, endpoint:Endpoint) =
+        let a, b = range.a, range.b
+        match a, b, endpoint with
+        | Open s, Open e, Open v -> s <= v && v <= e
+        | Open s, Open e, Closed v -> s < v && v < e
+        | Open s, Closed e, Open v -> s <= v && v <= e
+        | Open s, Closed e, Closed v -> s < v && v <= e
+        | Closed s, Open e, Open v -> s <= v && v <= e
+        | Closed s, Open e, Closed v -> s <= v && v < e
+        | Closed s, Closed e, Open v -> s <= v && v <= e
+        | Closed s, Closed e, Closed v -> s <= v && v <= e
+
+    let overlaps (range1:Range, range2:Range) =
+        let a1, b1 = range1.a, range1.b
+        let a2, b2 = range2.a, range2.b
+        contains_e (range1, a2) || contains_e (range1, b2) ||
+        contains_e (range2, a1) || contains_e (range2, b1)
