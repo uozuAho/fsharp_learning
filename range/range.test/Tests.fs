@@ -12,6 +12,29 @@ let validRangePairs =
     |> Arb.fromGen
 
 [<Property>]
+let ``(a, a) is invalid`` (a: int) =
+    let invalidRange = Range.tryCreate(Open a, Open a)
+    Assert.Equal(invalidRange, None)
+
+[<Property>]
+let ``[a, a) is invalid`` (a: int) =
+    let invalidRange = Range.tryCreate(Closed a, Open a)
+    Assert.Equal(invalidRange, None)
+
+[<Property>]
+let ``(a, a] is invalid`` (a: int) =
+    let invalidRange = Range.tryCreate(Open a, Closed a)
+    Assert.Equal(invalidRange, None)
+
+[<Fact>]
+let ``create from string`` () =
+    let range = Range.tryCreate("[1, 2]")
+    let expected = Range.tryCreate(Closed 1, Closed 2)
+    match range, expected with
+    | Some r, Some e -> Assert.Equal(r, e)
+    | _ -> Assert.Fail("Invalid range")
+
+[<Property>]
 let ``[a,b] contains a and b`` () =
     let n = validRangePairs
     Prop.forAll n (fun (a, b) ->
@@ -41,18 +64,3 @@ let ``(a, b+2) contains a + 1`` () =
         | Some range -> contains range (a + 1)
         | None -> Assert.Fail("Invalid range"); false
     )
-
-[<Property>]
-let ``(a, a) is invalid`` (a: int) =
-    let invalidRange = Range.tryCreate(Open a, Open a)
-    Assert.Equal(invalidRange, None)
-
-[<Property>]
-let ``[a, a) is invalid`` (a: int) =
-    let invalidRange = Range.tryCreate(Closed a, Open a)
-    Assert.Equal(invalidRange, None)
-
-[<Property>]
-let ``(a, a] is invalid`` (a: int) =
-    let invalidRange = Range.tryCreate(Open a, Closed a)
-    Assert.Equal(invalidRange, None)
