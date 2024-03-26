@@ -35,6 +35,14 @@ let ``create from string`` () =
     | _ -> Assert.Fail("Invalid range")
 
 [<Property>]
+let ``same ranges are equal`` (a: int, b: int) =
+    let range1 = Range.tryCreate(Closed a, Closed b)
+    let range2 = Range.tryCreate(Closed a, Closed b)
+    match range1, range2 with
+    | Some r1, Some r2 -> Assert.Equal(r1, r2)
+    | _ -> Assert.Fail("Invalid range")
+
+[<Property>]
 let ``[a,b] contains a and b`` () =
     let n = validRangePairs
     Prop.forAll n (fun (a, b) ->
