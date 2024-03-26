@@ -5,26 +5,19 @@ module MyRange =
         | Open of int
         | Closed of int
 
-    let a_greater_than_b(a, b) =
+    let isValidRange(a, b) =
         match a, b with
-        | Closed x, Closed y
+        | Closed _, Closed _ -> true
         | Closed x, Open y
         | Open x, Closed y
-        | Open x, Open y ->
-            x > y
+        | Open x, Open y -> x < y
 
     type Range private (a:Endpoint, b:Endpoint) =
         member this.a = a
         member this.b = b
-        static member create(a, b) =
-            if a_greater_than_b(a, b) then failwith "Invalid range"
-            match a, b with
-            | Closed _, Closed _ -> Range(a, b)
-            | Closed x, Open y
-            | Open x, Closed y
-            | Open x, Open y ->
-                if x = y then invalidArg "" "Open range cannot be degenerate"
-                else Range(a, b)
+        static member tryCreate(a, b) =
+            if isValidRange(a, b) then Some(Range(a, b))
+            else None
 
     let contains (range:Range) value =
         let a, b = range.a, range.b
