@@ -35,6 +35,11 @@ module MyRange =
             match parseEndpoints str with
             | Some(a, b) -> Range.tryCreate(a, b)
             | None -> None
+        override this.Equals(obj) =
+            match obj with
+            | :? Range as other -> this.a = other.a && this.b = other.b
+            | _ -> false
+        override this.GetHashCode() = hash (a, b)
 
     let contains (range:Range) value =
         let a, b = range.a, range.b
