@@ -60,17 +60,13 @@ module MyRange =
             match b2, a1 with
             | Closed x, Closed y when x = y -> true
             | _ -> false
-        let oneTotallyLeftOfTwo =
-            match b1, a2 with
-            | Closed x, Closed y
-            | Closed x, Open y
-            | Open x, Closed y
-            | Open x, Open y -> x < y
-        let oneTotallyRightOfTwo =
-            match a1, b2 with
-            | Closed x, Closed y
-            | Closed x, Open y
-            | Open x, Closed y
-            | Open x, Open y -> x > y
+        let b1isInside2 = contains range2 (match b1 with | Closed x -> x | Open x -> x)
+        let a1isInside2 = contains range2 (match a1 with | Closed x -> x | Open x -> x)
+        let b2isInside1 = contains range1 (match b2 with | Closed x -> x | Open x -> x)
+        let a2isInside1 = contains range1 (match a2 with | Closed x -> x | Open x -> x)
         adjacent1 || adjacent2
-        || (not oneTotallyLeftOfTwo && not oneTotallyRightOfTwo && false)
+        || b1isInside2
+        || a1isInside2
+        || b2isInside1
+        || a2isInside1
+
