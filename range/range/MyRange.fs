@@ -52,4 +52,25 @@ module MyRange =
     let overlaps (range1:Range, range2:Range) =
         let a1, b1 = range1.a, range1.b
         let a2, b2 = range2.a, range2.b
-        false
+        let adjacent1 =
+            match b1, a2 with
+            | Closed x, Closed y when x = y -> true
+            | _ -> false
+        let adjacent2 =
+            match b2, a1 with
+            | Closed x, Closed y when x = y -> true
+            | _ -> false
+        let oneTotallyLeftOfTwo =
+            match b1, a2 with
+            | Closed x, Closed y
+            | Closed x, Open y
+            | Open x, Closed y
+            | Open x, Open y -> x < y
+        let oneTotallyRightOfTwo =
+            match a1, b2 with
+            | Closed x, Closed y
+            | Closed x, Open y
+            | Open x, Closed y
+            | Open x, Open y -> x > y
+        adjacent1 || adjacent2
+        || (not oneTotallyLeftOfTwo && not oneTotallyRightOfTwo && false)

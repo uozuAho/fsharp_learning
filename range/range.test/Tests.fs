@@ -111,3 +111,11 @@ let ``[2, 3] does not overlap (3, 4]`` () =
     match range1, range2 with
     | Some r1, Some r2 -> Assert.False(overlaps (r1, r2))
     | _ -> Assert.Fail("Invalid range")
+
+[<Fact>]
+let ``[2, 3] overlaps [3, 4]`` () =
+    let range1 = Range.tryCreate("[2, 3]")
+    let range2 = Range.tryCreate("[3, 4]")
+    match range1, range2 with
+    | Some r1, Some r2 -> Assert.True(overlaps (r1, r2))
+    | _ -> Assert.Fail("Invalid range")
