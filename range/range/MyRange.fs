@@ -52,21 +52,31 @@ module MyRange =
     let overlaps (range1:Range, range2:Range) =
         let a1, b1 = range1.a, range1.b
         let a2, b2 = range2.a, range2.b
-        let adjacent1 =
+        let _1leftOf2 =
             match b1, a2 with
-            | Closed x, Closed y when x = y -> true
+            | Closed x, Closed y
+            | Closed x, Open y
+            | Open x, Closed y
+            | Open x, Open y -> x < y
+        let _1rightOf2 =
+            match a1, b2 with
+            | Closed x, Closed y
+            | Closed x, Open y
+            | Open x, Closed y
+            | Open x, Open y -> x > y
+        // endpoint number matches, but doesn't touch
+        let notQuiteTouching1 =
+            match b1, a2 with
+            | Closed x, Closed y when x = y -> false
+            | Open x, Closed y when x = y -> true
+            | Closed x, Open y when x = y -> true
+            | Open x, Open y when x = y -> true
             | _ -> false
-        let adjacent2 =
-            match b2, a1 with
-            | Closed x, Closed y when x = y -> true
+        let notQuiteTouching2 =
+            match a1, b2 with
+            | Closed x, Closed y when x = y -> false
+            | Open x, Closed y when x = y -> true
+            | Closed x, Open y when x = y -> true
+            | Open x, Open y when x = y -> true
             | _ -> false
-        let b1isInside2 = contains range2 (match b1 with | Closed x -> x | Open x -> x)
-        let a1isInside2 = contains range2 (match a1 with | Closed x -> x | Open x -> x)
-        let b2isInside1 = contains range1 (match b2 with | Closed x -> x | Open x -> x)
-        let a2isInside1 = contains range1 (match a2 with | Closed x -> x | Open x -> x)
-        adjacent1 || adjacent2
-        || b1isInside2
-        || a1isInside2
-        || b2isInside1
-        || a2isInside1
-
+        not (_1leftOf2 || _1rightOf2 || notQuiteTouching1 || notQuiteTouching2)
