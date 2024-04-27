@@ -1,8 +1,8 @@
 module Tests
 
-open System
 open Xunit
+open vend.Say
 
 [<Fact>]
 let ``My test`` () =
-    Assert.True(true)
+    Assert.Equal("hello bert", hello "bert")

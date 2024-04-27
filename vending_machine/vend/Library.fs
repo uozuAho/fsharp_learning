@@ -1,5 +1,4 @@
 ﻿namespace vend
 
 module Say =
-    let hello name =
-        printfn "Hello %s" name
+    let hello name = $"hello {name}"
