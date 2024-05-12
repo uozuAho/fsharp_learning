@@ -6,5 +6,8 @@ The goals for this implementation:
 I followed the 'Enterprise TTT' approach.
 
 # todo
+- use fscheck to test all coins in coin return
+- coin return: test multiple coins
+- coin return: test when no coins entered
 - does impl need an API? can it just expose functions that
   users need to use?
