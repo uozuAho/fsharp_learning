@@ -4,9 +4,9 @@ namespace vend
 // The domain describes what the vending machine can do, without
 // coupling to the implementation.
 module VendingMachineDomain =
-    type Money = Nickel | Dime | Quarter | Dollar
-    type InsertMoney<'MachineState> = 'MachineState -> Money -> 'MachineState
-    type CoinReturn<'MachineState> = 'MachineState -> 'MachineState * Money list
+    type Coin = Nickel | Dime | Quarter | Dollar
+    type InsertMoney<'MachineState> = 'MachineState -> Coin -> 'MachineState
+    type CoinReturn<'MachineState> = 'MachineState -> 'MachineState * Coin list
     type Create<'MachineState> = 'MachineState
     type Api<'MachineState> = {
         create: Create<'MachineState>
@@ -24,8 +24,8 @@ module VendingMachineImpl =
     // UI, which only has API access. I don't want to repeat
     // that boilerplate here.
     type MachineState = {
-        availableMoney: List<Money>
-        customerMoney: List<Money>
+        availableMoney: List<Coin>
+        customerMoney: List<Coin>
     }
 
     let private insertMoney machineState money =
