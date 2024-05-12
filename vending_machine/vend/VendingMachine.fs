@@ -33,7 +33,7 @@ module VendingMachineImpl =
         { machineState with customerMoney = newMoney }
 
     let private coinReturn machineState =
-        machineState, [Dollar]
+        machineState, machineState.customerMoney
 
     let private create =
         {
