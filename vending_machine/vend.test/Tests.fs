@@ -1,8 +1,13 @@
 module Tests
 
 open Xunit
-open vend.Say
+open vend
+open vend.VendingMachineDomain
 
 [<Fact>]
-let ``My test`` () =
-    Assert.Equal("hello bert", hello "bert")
+let ``Get same coin back`` () =
+    let machine = VendingMachineImpl.api
+    machine.insertMoney Dollar
+    let coins = machine.coinReturn
+    Assert.Equal(1, coins.Length)
+    Assert.Equal(Dollar, coins.Head)
