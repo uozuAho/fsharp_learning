@@ -29,6 +29,20 @@ let ``Coin return: Get same coin back`` () =
         Assert.Equal(coin, coins.Head)
     )
 
+[<Property>]
+let ``Coin return: Get two coins back`` () =
+    let n = chooseFromList [Nickel; Dime; Quarter; Dollar] |> Gen.two |> Arb.fromGen
+    Prop.forAll n (fun (coin1, coin2) ->
+        let api = VendingMachineImpl.api
+        let machine = api.create
+        let machine = api.insertMoney machine coin1
+        let machine = api.insertMoney machine coin2
+        let machine, coins = api.coinReturn machine
+        Assert.Equal(2, coins.Length)
+        let expectedCoins = [coin1; coin2]
+        Assert.Equivalent(expectedCoins, coins)
+    )
+
 [<Fact>]
 let ``Coin return returns nothing after coins returned`` () =
     let api = VendingMachineImpl.api
