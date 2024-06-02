@@ -5,7 +5,7 @@ namespace vend
 // coupling to the implementation.
 module VendingMachineDomain =
     type Coin = Nickel | Dime | Quarter | Dollar
-    type Item = ItemA
+    type Item = ItemA | ItemB | ItemC
 
     type Create<'MachineState> = 'MachineState
     type InsertMoney<'MachineState> = 'MachineState -> Coin -> 'MachineState

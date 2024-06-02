@@ -8,7 +8,15 @@ The goals for this implementation:
 I followed the 'Enterprise TTT' approach.
 
 # todo
-- get item: returns an item + change
+- WIP: property test for buying item with exact change
+    - need to know coin value
+    - need to know item value
+- get item:
+    - DONE: get item with exact change
+    - add items b & c
+        - item a = 0.65
+        - item b = 1.00
+        - item c = 1.50
     - if not enough money, do nothing
     - if no items left, do nothing
     - if not enough stored coins to give change, return money
