@@ -5,13 +5,18 @@ namespace vend
 // coupling to the implementation.
 module VendingMachineDomain =
     type Coin = Nickel | Dime | Quarter | Dollar
+    type Item = ItemA
+
     type Create<'MachineState> = 'MachineState
     type InsertMoney<'MachineState> = 'MachineState -> Coin -> 'MachineState
     type CoinReturn<'MachineState> = 'MachineState -> 'MachineState * Coin list
+    type GetItem<'MachineState> = 'MachineState -> Item -> 'MachineState * Item * Coin list
+
     type Api<'MachineState> = {
         create: Create<'MachineState>
         insertMoney: InsertMoney<'MachineState>
         coinReturn: CoinReturn<'MachineState>
+        getItem: GetItem<'MachineState>
     }
 
 
@@ -41,8 +46,12 @@ module VendingMachineImpl =
             customerMoney = List.Empty
         }
 
+    let private getItem machineState item =
+        machineState, item, List.Empty
+
     let api = {
         create = create
         insertMoney = insertMoney
         coinReturn = coinReturn
+        getItem = getItem
     }
