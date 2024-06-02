@@ -51,3 +51,12 @@ let ``Coin return returns nothing after coins returned`` () =
     let machine, coins = api.coinReturn machine
     let machine, coins = api.coinReturn machine
     Assert.Empty coins
+
+[<Fact>]
+let ``buy item with exact change`` () =
+    let api = VendingMachineImpl.api
+    let machine = api.create
+    let machine = api.insertMoney machine Dollar
+    let machine, item, change = api.getItem machine ItemA
+    Assert.Equal(ItemA, item)
+    Assert.Empty change
