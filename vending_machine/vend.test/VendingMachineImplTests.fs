@@ -39,7 +39,7 @@ let ``Coin return: Get same coin back`` () =
     Prop.forAll n (fun coin ->
         let api = VendingMachineImpl.api
         let machine = api.create
-        let machine = api.insertMoney machine coin
+        let machine = api.insertCoin machine coin
         let machine, coins = api.coinReturn machine
         Assert.Equal(1, coins.Length)
         Assert.Equal(coin, coins.Head)
@@ -51,8 +51,8 @@ let ``Coin return: Get two coins back`` () =
     Prop.forAll n (fun (coin1, coin2) ->
         let api = VendingMachineImpl.api
         let machine = api.create
-        let machine = api.insertMoney machine coin1
-        let machine = api.insertMoney machine coin2
+        let machine = api.insertCoin machine coin1
+        let machine = api.insertCoin machine coin2
         let machine, coins = api.coinReturn machine
         Assert.Equal(2, coins.Length)
         let expectedCoins = [coin1; coin2]
@@ -63,7 +63,7 @@ let ``Coin return: Get two coins back`` () =
 let ``Coin return returns nothing after coins returned`` () =
     let api = VendingMachineImpl.api
     let machine = api.create
-    let machine = api.insertMoney machine Dollar
+    let machine = api.insertCoin machine Dollar
     let machine, coins = api.coinReturn machine
     let machine, coins = api.coinReturn machine
     Assert.Empty coins
@@ -79,7 +79,7 @@ let ``buy item with exact change prop`` () =
         match coins with
         | [] -> machine
         | coin::rest ->
-            let machine = api.insertMoney machine coin
+            let machine = api.insertCoin machine coin
             insertCoins api machine rest
 
     Prop.forAll item (fun toBuy ->

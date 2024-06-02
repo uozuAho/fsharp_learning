@@ -24,13 +24,13 @@ module VendingMachineDomain =
             | ItemC -> 1.50m
 
     type Create<'MachineState> = 'MachineState
-    type InsertMoney<'MachineState> = 'MachineState -> Coin -> 'MachineState
+    type InsertCoin<'MachineState> = 'MachineState -> Coin -> 'MachineState
     type CoinReturn<'MachineState> = 'MachineState -> 'MachineState * Coin list
     type GetItem<'MachineState> = 'MachineState -> Item -> 'MachineState * Item * Coin list
 
     type Api<'MachineState> = {
         create: Create<'MachineState>
-        insertMoney: InsertMoney<'MachineState>
+        insertCoin: InsertCoin<'MachineState>
         coinReturn: CoinReturn<'MachineState>
         getItem: GetItem<'MachineState>
     }
@@ -67,7 +67,7 @@ module VendingMachineImpl =
 
     let api = {
         create = create
-        insertMoney = insertMoney
+        insertCoin = insertMoney
         coinReturn = coinReturn
         getItem = getItem
     }
