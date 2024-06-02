@@ -10,6 +10,22 @@ let chooseFromList xs =
   gen { let! i = Gen.choose (0, List.length xs-1) 
         return List.item i xs }
 
+// Just picks coins in the order they're given, so will fail
+// to find correct change for certain coin orders.
+let makeCorrectAmount coins amount =
+    let rec pick (remainingCoins: Coin list) (remainingAmount: decimal) (picked: Coin list) =
+        match remainingCoins with
+        | [] -> if remainingAmount = 0m then Some(picked) else None
+        | coin::rest ->
+            if coin.Value <= remainingAmount then
+                match pick (remainingCoins) (remainingAmount - coin.Value) (coin :: picked) with
+                | Some(result) -> Some(result)
+                | None -> pick (rest) (remainingAmount) (picked)
+            else
+                pick (rest) (remainingAmount) (picked)
+
+    pick coins amount []
+
 [<Fact>]
 let ``Coin return returns nothing when no coins entered`` () =
     let api = VendingMachineImpl.api
@@ -52,57 +68,31 @@ let ``Coin return returns nothing after coins returned`` () =
     let machine, coins = api.coinReturn machine
     Assert.Empty coins
 
-[<Fact>]
-let ``buy item with exact change`` () =
-    let api = VendingMachineImpl.api
-    let machine = api.create
-    let machine = api.insertMoney machine Dollar
-    let machine, item, change = api.getItem machine ItemA
-    Assert.Equal(ItemA, item)
-    Assert.Empty change
-
 [<Property>]
 let ``buy item with exact change prop`` () =
     let api = VendingMachineImpl.api
-    let machine = api.create
-    let item = chooseFromList [ItemA; ItemB; ItemC]
+    let item = chooseFromList [ItemA; ItemB; ItemC] |> Arb.fromGen
+    let myMoney = List.replicate 50 Nickel
 
-    // choose item to buy
-    // insert exact change
-    // press item
-    // assert got item and no change
-
-// WIP: my version based on gpt example below
-let makeCorrectChange (coins: seq<Coin>) (amount: decimal) =
-    let rec pick remainingCoins remainingAmount picked =
-        match remainingCoins with
-        | [] -> if remainingAmount = 0 then Some(picked) else None
+    // todo: add this to api
+    let rec insertCoins api machine coins =
+        match coins with
+        | [] -> machine
         | coin::rest ->
-            if coin.Value <= remainingAmount then
-                // todo: need to know coin value
-                match pick (remainingCoins) (remainingAmount - coin.Value) (coin :: picked) with
-                | Some(result) -> Some(result)
-                | None -> pick (rest) (remainingAmount) (picked)
-            else
-                pick (rest) (remainingAmount) (picked)
+            let machine = api.insertMoney machine coin
+            insertCoins api machine rest
 
-    pick coins amount []
+    Prop.forAll item (fun toBuy ->
+        let machine = api.create
+        let correctChange = makeCorrectAmount myMoney toBuy.Cost
+        let toInsert =
+            match correctChange with
+            | Some(result) -> result
+            | None -> failwith "couldn't make correct change"
+        let machine = insertCoins api machine toInsert
 
+        let machine, gotItem, gotChange = api.getItem machine toBuy 
 
-// example from chatGPT
-let makeChange (coins: list<decimal>) (amount: decimal) : list<decimal> =
-    let rec helper (sortedCoins: list<decimal>) (remaining: decimal) (acc: list<decimal>) =
-        match sortedCoins with
-        | [] -> if remaining = 0M then Some(acc) else None
-        | coin::rest ->
-            if coin <= remaining then
-                match helper (sortedCoins) (remaining - coin) (coin :: acc) with
-                | Some(result) -> Some(result)
-                | None -> helper (rest) (remaining) (acc)
-            else
-                helper (rest) (remaining) (acc)
-    
-    let sortedCoins = List.sortDescending coins
-    match helper sortedCoins amount [] with
-    | Some(result) -> result
-    | None -> failwith "No solution found"
+        Assert.Equal(toBuy, gotItem)
+        Assert.Empty gotChange
+    )

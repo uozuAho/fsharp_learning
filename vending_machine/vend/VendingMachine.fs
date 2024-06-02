@@ -4,8 +4,24 @@ namespace vend
 // The domain describes what the vending machine can do, without
 // coupling to the implementation.
 module VendingMachineDomain =
-    type Coin = Nickel | Dime | Quarter | Dollar
-    type Item = ItemA | ItemB | ItemC
+    // F# doesn't have literals with types, but I got this workaround from
+    // https://github.com/fsharp/fslang-suggestions/issues/656
+    type Coin =
+        Nickel | Dime | Quarter | Dollar
+        member t.Value =
+            match t with
+            | Nickel -> 0.05m
+            | Dime -> 0.10m
+            | Quarter -> 0.25m
+            | Dollar -> 1.00m
+
+    type Item =
+        ItemA | ItemB | ItemC
+        member t.Cost =
+            match t with
+            | ItemA -> 0.65m
+            | ItemB -> 1.00m
+            | ItemC -> 1.50m
 
     type Create<'MachineState> = 'MachineState
     type InsertMoney<'MachineState> = 'MachineState -> Coin -> 'MachineState
