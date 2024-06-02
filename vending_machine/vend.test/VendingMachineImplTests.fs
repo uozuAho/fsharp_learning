@@ -74,14 +74,6 @@ let ``buy item with exact change prop`` () =
     let item = chooseFromList [ItemA; ItemB; ItemC] |> Arb.fromGen
     let myMoney = List.replicate 50 Nickel
 
-    // todo: add this to api
-    let rec insertCoins api machine coins =
-        match coins with
-        | [] -> machine
-        | coin::rest ->
-            let machine = api.insertCoin machine coin
-            insertCoins api machine rest
-
     Prop.forAll item (fun toBuy ->
         let machine = api.create
         let correctChange = makeCorrectAmount myMoney toBuy.Cost
@@ -89,7 +81,7 @@ let ``buy item with exact change prop`` () =
             match correctChange with
             | Some(result) -> result
             | None -> failwith "couldn't make correct change"
-        let machine = insertCoins api machine toInsert
+        let machine = api.insertCoins machine toInsert
 
         let machine, gotItem, gotChange = api.getItem machine toBuy 
 
