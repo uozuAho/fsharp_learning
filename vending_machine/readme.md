@@ -7,20 +7,15 @@ The goals for this implementation:
 
 I followed the 'Enterprise TTT' approach.
 
+# C# version
+I made a C# version in vend_cs. C# _can_ do most of what F# is doing, but it's
+more verbose and harder to read. Type inference is great!
+
 # todo
-- WIP: property test for buying item with exact change
-    - need to know coin value
-    - need to know item value
 - get item:
-    - DONE: get item with exact change
-    - add items b & c
-        - item a = 0.65
-        - item b = 1.00
-        - item c = 1.50
     - if not enough money, do nothing
+    - give item with change when not exact change given
     - if no items left, do nothing
     - if not enough stored coins to give change, return money
-    - if press item first then enter money, give item + change
-      when enough money is entered
 - does impl need an API? can it just expose functions that
   users need to use?

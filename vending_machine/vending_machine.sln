@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "vend", "vend\vend.fsproj", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "vend.test", "vend.test\vend.test.fsproj", "{B671495F-E7FF-4DAA-B02B-4FBD028FEECE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vend_cs", "vend_cs\vend_cs.csproj", "{7A9583A9-660E-4F63-B0B6-0A4396B76E53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B671495F-E7FF-4DAA-B02B-4FBD028FEECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B671495F-E7FF-4DAA-B02B-4FBD028FEECE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B671495F-E7FF-4DAA-B02B-4FBD028FEECE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A9583A9-660E-4F63-B0B6-0A4396B76E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A9583A9-660E-4F63-B0B6-0A4396B76E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A9583A9-660E-4F63-B0B6-0A4396B76E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A9583A9-660E-4F63-B0B6-0A4396B76E53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
