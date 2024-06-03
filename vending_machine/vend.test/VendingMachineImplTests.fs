@@ -88,3 +88,24 @@ let ``buy item with exact change prop`` () =
         Assert.Equal(toBuy, gotItem)
         Assert.Empty gotChange
     )
+
+[<Property>]
+let ``nothing happens item is chosen with not enough money`` () =
+    let api = VendingMachineImpl.api
+    let item = chooseFromList [ItemA; ItemB; ItemC] |> Arb.fromGen
+    let myMoney = [Nickel; Dime;] |> chooseFromList |> Gen.
+
+    Prop.forAll item (fun toBuy ->
+        let machine = api.create
+        let correctChange = makeCorrectAmount myMoney toBuy.Cost
+        let toInsert =
+            match correctChange with
+            | Some(result) -> result
+            | None -> failwith "couldn't make correct change"
+        let machine = api.insertCoins machine toInsert
+
+        let machine, gotItem, gotChange = api.getItem machine toBuy 
+
+        Assert.Equal(toBuy, gotItem)
+        Assert.Empty gotChange
+    )
