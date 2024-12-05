@@ -77,7 +77,6 @@ let solve pairs =
     printfn "similarity: %d" (similarityScore pairs)
 
 let inputLines = File.ReadLines "input.txt"
-
 let pairs = inputLines |> parsePairs
 
 solve pairs
