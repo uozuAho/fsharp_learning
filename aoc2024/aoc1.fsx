@@ -18,6 +18,7 @@ dotnet fsi --use:aoc1.fsx
 #load "MyUtils.fsx"
 open System
 open MyUtils
+open System.IO
 
 let line2pair (line:string) =
     let ints =
@@ -60,18 +61,23 @@ let count x list =
     |> Seq.map (fun y -> if y = x then 1 else 0)
     |> Seq.sum
 
-let similarityScore pairs = 3
+let similarityScore pairs =
+    let left, right = pairs2cols pairs
+    let rec asdf a b sum =
+        match a with
+        | [] -> sum
+        | x::rest ->
+            let num = count x b // warning: n^2
+            let xval = x * num
+            asdf rest right (sum + xval)
+    asdf (Seq.toList left) right 0
 
 let solve pairs =
     printfn "distance:   %d" (totalDistance pairs)
     printfn "similarity: %d" (similarityScore pairs)
 
-let solveIfStdin =
-    match isStdInFromPipe with
-    | true ->
-        printfn "FROM STDIN:"
-        let pairs = readStdin |> parsePairs
-        solve pairs
-    | _ -> ()
+let inputLines = File.ReadLines "input.txt"
 
-solveIfStdin
+let pairs = inputLines |> parsePairs
+
+solve pairs
