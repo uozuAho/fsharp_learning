@@ -62,18 +62,27 @@ let rec allWithinBounds report =
 let isSafe report =
     isMonotonic report && allWithinBounds report
 
-// todo: need to allow one bad level
-let rec isSafePart2 report =
-    let isPartSafe x y z =
+let rec isSafePart2 report isOneRemoved =
+    let isSliceSafe x y z =
         ismono x y z && withinBounds x y && withinBounds y z
 
     match report with
     | [] | [_] -> true
-    | [x; y] -> withinBounds x y
-    | x::y::z::[] -> isPartSafe x y z
+    | [x; y] -> if isOneRemoved then withinBounds x y else true
+    | x::y::z::[] ->
+        match (isSliceSafe x y z), isOneRemoved with
+        | true, _ -> true
+        | false, true -> false
+        | false, false ->
+            isSafePart2 [x; y] true
+            || isSafePart2 [x; z] true
+            || isSafePart2 [y; z] true
     | x::y::z::rest ->
-        if not (isPartSafe x y z) then false
-        else isSafePart2 ([y;z] @ rest)
+        if (isSliceSafe x y z)
+        then isSafePart2 ([y; z] @ rest) isOneRemoved
+        else isSafePart2 ([x; y] @ rest) true
+            || isSafePart2 ([x; z] @ rest) true
+            || isSafePart2 ([y; z] @ rest) true
 
 let reports =
     File.ReadLines("input.txt")
@@ -93,11 +102,11 @@ let numSafePart1 =
 
 let numSafePart2 =
     reports
-    |> Seq.map isSafePart2
+    |> Seq.map (fun report -> isSafePart2 report false)
     |> Seq.map (fun b -> if b then 1 else 0)
     |> Seq.sum
 
 // printAllChecks isSafe reports
-printAllChecks isSafePart2 reports
+printAllChecks (fun r -> isSafePart2 r false) reports
 printfn "num safe 1: %d" numSafePart1
 printfn "num safe 2: %d" numSafePart2
