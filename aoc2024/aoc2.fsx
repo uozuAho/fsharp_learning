@@ -29,17 +29,18 @@ let str2reports (str:string) =
     str.Split('\n')
     |> Seq.map parseReport
 
-// same non-stopping problem here
 let rec isMonotonic report =
-    match report with
-    | [] | [_] | [_;_] -> true
-    | x::y::z::[] ->
+    let ismono x y z =
         match x, y, z with
         | _ when x - y > 0 && y - z < 0 -> false
         | _ when x - y < 0 && y - z > 0 -> false
         | _ -> true
+    match report with
+    | x::y::z::[] -> ismono x y z
     | x::y::z::rest ->
-        isMonotonic ([y; z] @ rest)
+        if not (ismono x y z) then false
+        else isMonotonic ([y;z] @ rest)
+    | _ -> true
 
 let withinBounds x y =
     let absdiff = abs (x - y)
