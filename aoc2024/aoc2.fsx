@@ -29,6 +29,7 @@ let str2reports (str:string) =
     str.Split('\n')
     |> Seq.map parseReport
 
+// same non-stopping problem here
 let rec isMonotonic report =
     match report with
     | [] | [_] | [_;_] -> true
@@ -46,8 +47,10 @@ let withinBounds x y =
 
 let rec allWithinBounds report =
     match report with
-    | x::y::[] -> withinBounds x y // TODO not quitting early when false found
-    | x::y::rest -> allWithinBounds ([y] @ rest)
+    | x::y::[] -> withinBounds x y
+    | x::y::rest ->
+        if not (withinBounds x y) then false
+        else allWithinBounds ([y] @ rest)
     | _ -> true
 
 let isSafe report =
@@ -58,9 +61,9 @@ let reports =
     |> Seq.map parseReport
     |> Seq.toList
 
-// reports |> Seq.iter (fun report ->
-//     printfn "%b: %A" (isSafe report) report
-// )
+reports |> Seq.iter (fun report ->
+    printfn "%b: %A" (isSafe report) report
+)
 
 let numSafe =
     reports
