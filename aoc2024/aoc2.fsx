@@ -84,6 +84,60 @@ let rec isSafePart2 report isOneRemoved =
             || isSafePart2 ([x; z] @ rest) true
             || isSafePart2 ([y; z] @ rest) true
 
+type Trend = Up | Down | Flat | Unknown
+
+let trend x y =
+    if x - y > 0 then Down else
+        if x - y = 0 then Flat else Up
+
+// attempt 2. To fix:
+// - make signature report -> bool
+// - don't overlap checks (eg check a b c then b c d checks b c twice)
+// - attempt 1 is wrong, passes 5 reports instead of 4
+let isSafePart2_2 report =
+    let isSafe x y prevTrend =
+        (prevTrend = Unknown || trend x y = prevTrend)
+        && withinBounds x y
+
+    let rec check rem prevTrend canRemove =
+        printfn "check %A, %A, %b" rem prevTrend canRemove
+        match rem with
+        | [] | [_] -> true
+        | x::y::[] ->
+            let prevTrend = if prevTrend <> Unknown then prevTrend else trend x y
+            let safe = isSafe x y prevTrend
+            printfn "at end. safe: %b" safe
+            canRemove || safe
+        | x::y::rest ->
+            let prevTrend = if prevTrend <> Unknown then prevTrend else trend x y
+            let safeHere = isSafe x y prevTrend
+            match safeHere, canRemove with
+            | false, false ->
+                printfn "not safe & can't remove"
+                false
+            | false, true ->
+                printfn "not safe, removing"
+                check ([x] @ rest) prevTrend false
+                || check ([y] @ rest) prevTrend false
+            | true, _ ->
+                check ([y] @ rest) prevTrend canRemove
+
+    check report Unknown true
+
+// 3rd attempt. Brute force. Shoulda started with this...
+let genSubReports report =
+    let len = List.length report
+    [0..len-1] |> Seq.map (fun i -> List.removeAt i report)
+
+let isSafePart2_3 report =
+    if isSafe report then true
+    else
+        let safeReport = genSubReports report |> Seq.tryFind isSafe
+        match safeReport with
+        | Some(_) -> true
+        | None -> false
+
+
 let reports =
     File.ReadLines("input.txt")
     |> Seq.map parseReport
@@ -94,19 +148,15 @@ let printAllChecks check reports =
         printfn "%b: %A" (check report) report
     )
 
-let numSafePart1 =
+let count reports check =
     reports
-    |> Seq.map isSafe
-    |> Seq.map (fun b -> if b then 1 else 0)
-    |> Seq.sum
-
-let numSafePart2 =
-    reports
-    |> Seq.map (fun report -> isSafePart2 report false)
+    |> Seq.map check
     |> Seq.map (fun b -> if b then 1 else 0)
     |> Seq.sum
 
 // printAllChecks isSafe reports
-printAllChecks (fun r -> isSafePart2 r false) reports
-printfn "num safe 1: %d" numSafePart1
-printfn "num safe 2: %d" numSafePart2
+// printAllChecks isSafePart2_2 reports
+// printAllChecks isSafePart2_3 reports
+// printfn "num safe 1: %d" numSafePart1
+// printfn "num safe 2: %d" numSafePart2
+printfn "num safe 2: %d" (count reports isSafePart2_3)
