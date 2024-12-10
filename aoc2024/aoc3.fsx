@@ -77,9 +77,13 @@ let filterDonts2 str =
 
     go str true ""
 
+let part2_2 str =
+    filterDonts2 str
+    |> part1
+
 
 let input = File.ReadAllText("input.txt")
 let result = part1 input
 printfn "part1: %d" result
-let result2 = part2 input
-printfn "part2: %d" result2
+printfn "part2: %d" (part2 input)
+printfn "part2_2: %d" (part2_2 input)
