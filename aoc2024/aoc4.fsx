@@ -89,7 +89,7 @@ let isXmasAt pos dir board =
             | _ -> false
     asdf pos dir "" board
 
-let findAll (board:Board) =
+let findAllXmas (board:Board) =
     let xmasAtPosDir pos dir =
         if (isXmasAt pos dir board) then Some(pos, dir)
         else None
@@ -97,6 +97,37 @@ let findAll (board:Board) =
     [for pos in board.allPositions do
         for dir in all_directions do
             xmasAtPosDir pos dir] |> List.choose id
+
+// part 2
+let isMas9x9At pos (board:Board) =
+    let rec wordAt word pos dir (board:Board) =
+        if String.length word = 3 then Some(word)
+        else
+            let char = board.charAt pos
+            match char with
+            | None -> Some(word)
+            | Some(c) ->
+                let word = word + string c
+                let nextPos = board.nextPos pos dir
+                match nextPos with
+                | None -> Some(word)
+                | Some(p) -> wordAt word p dir board
+    let word1 = wordAt "" pos DownRight board
+    let x, y = pos
+    let word2 =
+        match board.charAt (x + 2, y) with
+        | None -> None
+        | Some(_) -> wordAt "" (x + 2, y) DownLeft board
+    let ismas str = str = "MAS" || str = "SAM"
+    match word1, word2 with
+    | Some(x), Some(y) -> ismas x && ismas y
+    | _ -> false
+
+
+let countAllMas9x9 (board:Board) =
+    [for pos in board.allPositions do isMas9x9At pos board]
+    |> List.where id
+    |> List.length
 
 // -------------------------
 // let myBoardStr = "....
@@ -113,9 +144,11 @@ let myBoardStr = File.ReadAllText("input.txt")
 let myBoard = str2board myBoardStr
 match myBoard with
 | Some(board) ->
-    // let found = findEnds board
-    let found = findAll board
+    let found = findAllXmas board
     printfn "%A" found
     printfn "%d" found.Length
+    printfn "part2:"
+    let count = countAllMas9x9 board
+    printfn "%d" count
 | None ->
     printfn "invalid board!"
