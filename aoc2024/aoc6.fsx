@@ -3,7 +3,11 @@ https://adventofcode.com/2024/day/6
 *)
 
 #load "MyUtils.fsx"
+#load "ScriptTest.fsx"
 open MyUtils;
+open ScriptTest;
+
+let tests = Tests()
 
 type CellItem = Empty | Obstacle
 type Row = list<CellItem>
@@ -50,18 +54,6 @@ let next guard map =
     let newPos = if obstacleAhead then pos else posAhead
     let newDir = if obstacleAhead then dir.turnRight else dir
     newPos, newDir
-
-let allVisited guard map =
-    let rec run guard prevStates visited =
-        if (List.contains guard prevStates) then visited
-        else
-            let prevStates = guard::prevStates
-            let visited =
-                let pos, _ = guard
-                if (List.contains pos visited)
-                then visited else pos::visited
-            run (next guard map) prevStates visited
-    run guard [] []
 
 let char2dir c =
     match c with
@@ -124,9 +116,60 @@ let incr map =
     let guard = next guard map
     tostr guard map
 
+tests.add "guards equal" (fun _ ->
+    let guard1 = (1, 2), Up
+    let guard2 = (1, 2), Up
+    guard1 = guard2)
+
+tests.add "guards not equal" (fun _ ->
+    let guard1 = (1, 2), Up
+    let guard2 = (2, 2), Up
+    guard1 <> guard2)
+
+tests.add "guards not equal2" (fun _ ->
+    let guard1 = (1, 2), Up
+    let guard2 = (1, 2), Down
+    guard1 <> guard2)
+
+tests.add "guard list contains" (fun _ ->
+    let guard1 = (1, 2), Up
+    let list = [guard1]
+    List.contains guard1 list)
+
+tests.add "guard list not contains" (fun _ ->
+    let guard1 = (1, 2), Up
+    let guard2 = (2, 2), Up
+    let list = [guard1]
+    not (List.contains guard2 list))
+
+tests.add "pos = pos" (fun _ ->
+    (1, 2) = (1, 2)
+)
+
+// todo: runs forever. prolly cos doesn't terminate when guard goes off map
+let allVisited mapStr =
+    let rec run guard map prevStates visited =
+        if (List.contains guard prevStates) then visited
+        else
+            let prevStates = guard::prevStates
+            let visited =
+                let pos, _ = guard
+                if (List.contains pos visited)
+                then visited else pos::visited
+            run (next guard map) map prevStates visited
+    let guard, map =
+        match fromStr mapStr with
+        | Some(g, m) -> g, m
+        | None -> failwith "invalid map"
+    run guard map [] []
+
 let testMap = "
 .#..
 ....
 ....
 .^..
 "
+
+allVisited testMap
+
+// tests.run
