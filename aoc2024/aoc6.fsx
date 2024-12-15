@@ -1,5 +1,16 @@
 (*
 https://adventofcode.com/2024/day/6
+
+part 2
+- find all single positions you could add an obstacle to cause the guard to loop
+- return count of positions
+- loop: guard returns to a previous state
+- no loop: guard leaves map
+
+brute force idea
+for each original visited position
+    place an obstacle there
+        run sim, check for loop
 *)
 
 #load "MyUtils.fsx"
@@ -117,13 +128,14 @@ let incr map =
     let guard = next guard map
     tostr guard map
 
-let allVisited mapStr =
+let runToEnd mapStr =
     let rec run guard (map:Map) prevStates visited =
-        let terminated =
-            let sameState = List.contains guard prevStates
+        let isLoop = List.contains guard prevStates
+        let guardLeftMap =
             let pos, _ = guard
-            sameState || not (map.inBounds pos)
-        if terminated then visited
+            not (map.inBounds pos)
+        let terminated = isLoop || guardLeftMap
+        if terminated then prevStates, visited, isLoop
         else
             let prevStates = guard::prevStates
             let visited =
@@ -137,20 +149,20 @@ let allVisited mapStr =
         | None -> failwith "invalid map"
     run guard map [] []
 
-// let map = "
-// ....#.....
-// .........#
-// ..........
-// ..#.......
-// .......#..
-// ..........
-// .#..^.....
-// ........#.
-// #.........
-// ......#...
-// "
-let map = File.ReadAllText "input.txt"
+let map = "
+....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...
+"
+// let map = File.ReadAllText "input.txt"
 
-let visited = allVisited map
+let prevStates, visited, isLoop = runToEnd map
 printfn "%A" visited.Length
 // tests.run
