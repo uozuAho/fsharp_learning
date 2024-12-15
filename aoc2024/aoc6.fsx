@@ -6,6 +6,7 @@ https://adventofcode.com/2024/day/6
 #load "ScriptTest.fsx"
 open MyUtils;
 open ScriptTest;
+open System.IO
 
 let tests = Tests()
 
@@ -116,40 +117,13 @@ let incr map =
     let guard = next guard map
     tostr guard map
 
-tests.add "guards equal" (fun _ ->
-    let guard1 = (1, 2), Up
-    let guard2 = (1, 2), Up
-    guard1 = guard2)
-
-tests.add "guards not equal" (fun _ ->
-    let guard1 = (1, 2), Up
-    let guard2 = (2, 2), Up
-    guard1 <> guard2)
-
-tests.add "guards not equal2" (fun _ ->
-    let guard1 = (1, 2), Up
-    let guard2 = (1, 2), Down
-    guard1 <> guard2)
-
-tests.add "guard list contains" (fun _ ->
-    let guard1 = (1, 2), Up
-    let list = [guard1]
-    List.contains guard1 list)
-
-tests.add "guard list not contains" (fun _ ->
-    let guard1 = (1, 2), Up
-    let guard2 = (2, 2), Up
-    let list = [guard1]
-    not (List.contains guard2 list))
-
-tests.add "pos = pos" (fun _ ->
-    (1, 2) = (1, 2)
-)
-
-// todo: runs forever. prolly cos doesn't terminate when guard goes off map
 let allVisited mapStr =
-    let rec run guard map prevStates visited =
-        if (List.contains guard prevStates) then visited
+    let rec run guard (map:Map) prevStates visited =
+        let terminated =
+            let sameState = List.contains guard prevStates
+            let pos, _ = guard
+            sameState || not (map.inBounds pos)
+        if terminated then visited
         else
             let prevStates = guard::prevStates
             let visited =
@@ -163,13 +137,20 @@ let allVisited mapStr =
         | None -> failwith "invalid map"
     run guard map [] []
 
-let testMap = "
-.#..
-....
-....
-.^..
-"
+// let map = "
+// ....#.....
+// .........#
+// ..........
+// ..#.......
+// .......#..
+// ..........
+// .#..^.....
+// ........#.
+// #.........
+// ......#...
+// "
+let map = File.ReadAllText "input.txt"
 
-allVisited testMap
-
+let visited = allVisited map
+printfn "%A" visited.Length
 // tests.run
