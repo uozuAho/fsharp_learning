@@ -1,3 +1,8 @@
+(*
+Work in progress. Easier than avalonia, but still work. Drawing on the console
+for now...
+*)
+
 #r "nuget: Eto.Forms"
 #r "nuget: Eto.Platform.Gtk"
 
@@ -27,6 +32,22 @@ type MainForm() as this =
 
         this.Content <- drawable
 
-let app = new Application()
-let mainForm = new MainForm()
-app.Run(mainForm)
+type Colour = Red | Green | Blue
+type Square = {
+    Size: int
+    Colour: Colour
+}
+type Circle = {
+    Center: int * int
+    Colour: Colour
+}
+type Shape = Square | Circle
+type Drawing =
+    {
+        Shapes: list<Shape>
+    }
+
+
+// let app = new Application()
+// let mainForm = new MainForm()
+// app.Run(mainForm)
