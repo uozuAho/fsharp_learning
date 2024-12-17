@@ -79,4 +79,56 @@ let lines = System.IO.File.ReadAllLines "input.txt" |> Array.toList
 //     | None ->
 //         printfn "nope"
 
-printfn $"{sumGoodLines lines 0}"
+// printfn $"{sumGoodLines lines 0}"
+
+(*
+part 2: new op 'concat' || joins two nums, eg 12 || 34 = 1234
+otherwise same as part 1
+*)
+
+type Operator = Add | Mult | Concat
+#load "ScriptTest.fsx"
+open ScriptTest
+let tests = Tests()
+
+let nextOpSet ops =
+    let nextOp op =
+        match op with
+        | Add -> (Mult, false)
+        | Mult -> (Concat, false)
+        | Concat -> (Add, true)
+    let rec nextOps ops carry =
+        if not carry then ops
+        else
+        match ops with
+        | [] -> ops
+        | o::rest ->
+            let newop, newCarry = if carry then nextOp o else o, false
+            newop::(nextOps rest newCarry)
+    nextOps ops true
+
+for current, expNext in [
+    ([Add; Add], [Mult; Add])
+    ([Concat; Add], [Add; Mult])
+    ([Concat; Concat], [Add; Add])
+] do
+    tests.add $"nextOpSet {current}" (fun _ ->
+        let next = nextOpSet current
+        assertEq next expNext)
+
+let allOps numOps =
+    let first = List.init numOps (fun _ -> Add)
+    let last = List.init numOps (fun _ -> Concat)
+    first |> Seq.unfold (fun current ->
+        let next = nextOpSet current
+        // todo: how to fix?
+        // returns none: if current = first then None else Some(current, next)
+        // misses last: if next = first then None else Some(current, next))
+
+let doOp op x y =
+    match op with
+    | Add -> x + y
+    | Mult -> x * y
+    | Concat -> int ((string x) + (string y))
+
+tests.run
