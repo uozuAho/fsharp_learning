@@ -53,7 +53,11 @@ let wozAssert assertion =
         let file = Array.last (frame.GetFileName().Split('/')) // just linux paths for now
         let lineNum = frame.GetFileLineNumber()
         let assertCode = frame |> getAssertCode
-        printfn $"{file}:{lineNum}: Assertion failed: {assertCode}"
+        let assertionText = assertCode.Replace("wozAssert", "")
+        let temp = Console.ForegroundColor
+        Console.ForegroundColor <- ConsoleColor.Red
+        printfn $"{file}:{lineNum}: ASSERTION FAILED: {assertionText}"
+        Console.ForegroundColor <- temp
         // printCallStack stack
     #endif
     ()
@@ -69,16 +73,36 @@ let isStdInFromPipe =
 let enumerate seq =
     seq |> Seq.mapi (fun i x -> (i, x))
 
-// let webFetch (url:string) =
-//     async {
-//         use client = new System.Net.Http.HttpClient()
-//         let! resp = client.GetStringAsync(url) |> Async.AwaitTask
-//         return resp
-//     }
+// saving keystrokes:
+let map fn = Seq.map fn
+let el n (list:list<'a>) = list.[n]
+let sort seq = Seq.sort seq
+let len seq = Seq.length seq
+
+let webFetch (url:string) =
+    async {
+        use client = new System.Net.Http.HttpClient()
+        let! resp = client.GetStringAsync(url) |> Async.AwaitTask
+        return resp
+    }
 
 // todo: add cookie with session token for this to work
-// let aocFetchInput year day =
-//     let input =
-//         webFetch $"https://adventofcode.com/{year}/day/{day}/input"
-//         |> Async.RunSynchronously
-//     System.IO.File.WriteAllText($"input/{day}.txt", input)
+let aocFetchInput year day =
+    let input =
+        webFetch $"https://adventofcode.com/{year}/day/{day}/input"
+        |> Async.RunSynchronously
+    System.IO.File.WriteAllText($"input/{day}.txt", input)
+    input
+
+let toLines (str:string) =
+    str.Split('\n') |> Array.where ((<>) "")
+
+let reMatches pattern str =
+    let regex = System.Text.RegularExpressions.Regex(pattern)
+    [ for matchObj in regex.Matches(str) -> matchObj.Value ]
+
+let numbersInLine str =
+    reMatches "\d+" str |> List.map int64
+
+let linesAsNumbers lines =
+    lines |> map numbersInLine
