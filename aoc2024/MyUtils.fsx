@@ -1,16 +1,5 @@
 open System
 
-let readStdin =
-    Seq.initInfinite (fun _ -> Console.In.ReadLine())
-    |> Seq.takeWhile ((<>) null)
-
-// not sure if this is 100% correct. Getting weird behaviour with stdin
-let isStdInFromPipe =
-    Console.IsInputRedirected
-
-let enumerate seq =
-    seq |> Seq.mapi (fun i x -> (i, x))
-
 let private getCallStack () =
     try
         let stackTrace = System.Diagnostics.StackTrace(true)
@@ -68,3 +57,28 @@ let wozAssert assertion =
         // printCallStack stack
     #endif
     ()
+
+let readStdin =
+    Seq.initInfinite (fun _ -> Console.In.ReadLine())
+    |> Seq.takeWhile ((<>) null)
+
+// I think this will only work in fs projects, not scripts
+let isStdInFromPipe =
+    Console.IsInputRedirected
+
+let enumerate seq =
+    seq |> Seq.mapi (fun i x -> (i, x))
+
+// let webFetch (url:string) =
+//     async {
+//         use client = new System.Net.Http.HttpClient()
+//         let! resp = client.GetStringAsync(url) |> Async.AwaitTask
+//         return resp
+//     }
+
+// todo: add cookie with session token for this to work
+// let aocFetchInput year day =
+//     let input =
+//         webFetch $"https://adventofcode.com/{year}/day/{day}/input"
+//         |> Async.RunSynchronously
+//     System.IO.File.WriteAllText($"input/{day}.txt", input)
