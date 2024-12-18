@@ -54,6 +54,29 @@ let rec sumGoodLines lines acc =
         | Some(_) ->
             sumGoodLines rest (acc + result)
 
+(*
+part 2: new op 'concat' || joins two nums, eg 12 || 34 = 1234
+otherwise same as part 1
+*)
+
+let concat x y =
+    int64 ((string x) + (string y))
+
+let canMake target vals =
+    let rec next target acc rem ops =
+        match rem with
+        | [] ->
+            if acc = target then printfn "%A" ops
+            // assert (((List.length ops) + 1) = (List.length vals))
+            //canMake 16931 [568; 2; 9; 16; 529; 1; 8; 1; 3; 8];;
+            assert false // argh need --define:DEBUG to hit asserts, they crash dotnet
+            acc = target
+        | x::rest ->
+            next target (acc + x) rest ('+'::ops)
+            || next target (acc * x) rest ('*'::ops)
+            || next target (concat acc x) rest ('|'::ops)
+    next target (List.head vals) vals[1..] []
+
 let input = "
 190: 10 19
 3267: 81 40 27
@@ -69,66 +92,20 @@ let input = "
 // let lines = input.Split('\n') |> Array.where ((<>) "") |> Array.toList
 let lines = System.IO.File.ReadAllLines "input.txt" |> Array.toList
 
+let total =
+    lines
+    |> Seq.map parseLine
+    |> Seq.where (fun line ->
+        let target, vals = line
+        canMake target vals)
+    |> Seq.map fst
+    |> Seq.sum
+
+// printfn $"{total}"
 // for line in lines do
+//     let target, vals = parseLine line
+//     if canMake target vals then
+//         printf $"YES: "
+//     else
+//         printf $"NO:  "
 //     printfn $"{line}"
-//     let result, vals = parseLine line
-//     let r = check vals result 0
-//     match r with
-//     | Some(operands) ->
-//         printfn "yay"
-//     | None ->
-//         printfn "nope"
-
-// printfn $"{sumGoodLines lines 0}"
-
-(*
-part 2: new op 'concat' || joins two nums, eg 12 || 34 = 1234
-otherwise same as part 1
-*)
-
-type Operator = Add | Mult | Concat
-#load "ScriptTest.fsx"
-open ScriptTest
-let tests = Tests()
-
-let nextOpSet ops =
-    let nextOp op =
-        match op with
-        | Add -> (Mult, false)
-        | Mult -> (Concat, false)
-        | Concat -> (Add, true)
-    let rec nextOps ops carry =
-        if not carry then ops
-        else
-        match ops with
-        | [] -> ops
-        | o::rest ->
-            let newop, newCarry = if carry then nextOp o else o, false
-            newop::(nextOps rest newCarry)
-    nextOps ops true
-
-for current, expNext in [
-    ([Add; Add], [Mult; Add])
-    ([Concat; Add], [Add; Mult])
-    ([Concat; Concat], [Add; Add])
-] do
-    tests.add $"nextOpSet {current}" (fun _ ->
-        let next = nextOpSet current
-        assertEq next expNext)
-
-let allOps numOps =
-    let first = List.init numOps (fun _ -> Add)
-    let last = List.init numOps (fun _ -> Concat)
-    first |> Seq.unfold (fun current ->
-        let next = nextOpSet current
-        // todo: how to fix?
-        // returns none: if current = first then None else Some(current, next)
-        // misses last: if next = first then None else Some(current, next))
-
-let doOp op x y =
-    match op with
-    | Add -> x + y
-    | Mult -> x * y
-    | Concat -> int ((string x) + (string y))
-
-tests.run
