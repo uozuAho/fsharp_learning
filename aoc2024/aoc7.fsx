@@ -67,9 +67,6 @@ let canMake target vals =
         match rem with
         | [] ->
             if acc = target then printfn "%A" ops
-            // assert (((List.length ops) + 1) = (List.length vals))
-            //canMake 16931 [568; 2; 9; 16; 529; 1; 8; 1; 3; 8];;
-            assert false // argh need --define:DEBUG to hit asserts, they crash dotnet
             acc = target
         | x::rest ->
             next target (acc + x) rest ('+'::ops)
@@ -90,16 +87,16 @@ let input = "
 "
 
 // let lines = input.Split('\n') |> Array.where ((<>) "") |> Array.toList
-let lines = System.IO.File.ReadAllLines "input.txt" |> Array.toList
+// let lines = System.IO.File.ReadAllLines "input.txt" |> Array.toList
 
-let total =
-    lines
-    |> Seq.map parseLine
-    |> Seq.where (fun line ->
-        let target, vals = line
-        canMake target vals)
-    |> Seq.map fst
-    |> Seq.sum
+// let total =
+//     lines
+//     |> Seq.map parseLine
+//     |> Seq.where (fun line ->
+//         let target, vals = line
+//         canMake target vals)
+//     |> Seq.map fst
+//     |> Seq.sum
 
 // printfn $"{total}"
 // for line in lines do
