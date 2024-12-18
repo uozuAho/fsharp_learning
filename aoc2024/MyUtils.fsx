@@ -96,7 +96,7 @@ let aocFetchInput year day =
     input
 
 let toLines (str:string) =
-    str.Split('\n') |> Array.where ((<>) "")
+    str.Split('\n') |> Seq.where ((<>) "")
 
 let reMatches pattern str =
     let regex = System.Text.RegularExpressions.Regex(pattern)
