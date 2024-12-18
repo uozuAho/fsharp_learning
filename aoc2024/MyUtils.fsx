@@ -58,6 +58,7 @@ let wozAssert assertion =
         Console.ForegroundColor <- ConsoleColor.Red
         printfn $"{file}:{lineNum}: ASSERTION FAILED: {assertionText}"
         Console.ForegroundColor <- temp
+        // failwith ""  // uncomment to break on failed assertion
         // printCallStack stack
     #endif
     ()
