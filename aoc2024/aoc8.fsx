@@ -32,38 +32,8 @@ let sampleStr = "
 ............
 "
 
-// todo: add these to utils
-type CharGrid =
-    {
-        cells: list<list<char>>
-        height: int
-        width: int
-    }
-    member this.charAt x y =
-        // todo: bounds check
-        this.cells.[y].[x]
-    member this.allCells =
-        seq {
-            for rowNum, row in enumerate this.cells do
-                for colNum, char in enumerate row do
-                    ((colNum, rowNum), char)
-        }
-    member this.toString =
-        for row in this.cells do
-            let str = new System.String(row |> List.toArray)
-            printfn $"{str}"
-    member this.inBounds p =
-        let x, y = p
-        this.inBoundsXy x y
-    member this.inBoundsXy x y =
-        x >= 0 && x < this.width
-        && y >= 0 && y < this.height
-
-let asChars (str:string) =
-    str.ToCharArray() |> Array.toList
-
 let toGrid lines =
-    let chars = lines |> map asChars |> Seq.toList
+    let chars = lines |> map str2chars |> Seq.toList
     {
         cells = chars
         height = chars.Length
@@ -84,6 +54,7 @@ let antiPos pos1 pos2 =
     let x, y = distTo pos1 pos2
     xyop (+) pos2 (x, y)
 
+// defaultdict may be handy here. No standard impl
 let findAllAntennaPos (grid:CharGrid) =
     grid.allCells
     |> Seq.where (fun x -> snd x <> '.')
