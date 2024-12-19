@@ -79,6 +79,7 @@ let map fn = Seq.map fn
 let el n (list:list<'a>) = list.[n]
 let sort seq = Seq.sort seq
 let len seq = Seq.length seq
+let where seq = Seq.where seq
 
 let webFetch (url:string) =
     async {

@@ -52,6 +52,12 @@ type CharGrid =
         for row in this.cells do
             let str = new System.String(row |> List.toArray)
             printfn $"{str}"
+    member this.inBounds p =
+        let x, y = p
+        this.inBoundsXy x y
+    member this.inBoundsXy x y =
+        x >= 0 && x < this.width
+        && y >= 0 && y < this.height
 
 let asChars (str:string) =
     str.ToCharArray() |> Array.toList
@@ -121,23 +127,47 @@ let addAntis grid antis =
     toGrid lines
 
 let solve1 (lines:seq<string>) =
-    let map = lines |> map (fun s -> s.ToCharArray()) |> Seq.toList
-    // todo: parse grid to 2d array
-    // todo: easier string to chars
+    let grid = lines |> toGrid
+    let allantis = genAllAntinodes grid |> where grid.inBounds
+    printfn $"{allantis |> Seq.length}"
+    // let fullGrid = addAntis grid allantis
+    // printfn $"{fullGrid.toString}"
 
+(*
+part 2 : antinodes are created repeatedly in line, not just once
+*)
 
-    // example usage of some of my utils. remove once you've done a few more puzzles
-    // let numberLines = linesAsNumbers lines
-    // let col1 = numberLines |> map (el 0)
-    // let col2 = numberLines |> map (el 1)
-    // wozAssert ((len col1) = (len col2))
-    // Seq.zip (sort col1) (sort col2)
-    // |> Seq.map (fun x -> abs(fst x - snd x))
-    // |> Seq.sum
-    0
+let antiPosRepeat pos pos2 (grid:CharGrid) =
+    (pos, pos2)
+    |> Seq.unfold (fun ps ->
+        let p1, p2 = ps
+        if not (grid.inBounds p1) then None
+        else Some(ps, (p2, antiPos p1 p2)))
+    |> map fst
+
+let genAntinodesRepeat poss grid =
+    seq {
+        for pair in Seq.allPairs poss poss do
+            let p1 = fst pair
+            let p2 = snd pair
+            if p1 <> p2 then yield! antiPosRepeat p1 p2 grid
+    }
+
+let genAllAntinodesRepeat grid =
+    let ants = findAllAntennaPos grid
+    let antis = seq {
+        for group in ants do
+            let poss = snd group
+            yield! (genAntinodesRepeat poss grid)
+    }
+    antis |> Seq.distinct
 
 let solve2 lines =
-    0
+    let grid = lines |> toGrid
+    let allantis = genAllAntinodesRepeat grid |> where grid.inBounds
+    printfn $"{allantis |> Seq.length}"
+    // let fullGrid = addAntis grid allantis
+    // printfn $"{fullGrid.toString}"
 
 // todo: this needs session token to work
 // manually save to input.txt for now
@@ -159,11 +189,5 @@ printfn "Real input:"
 printfn $"{solve2 input}"
 printfn ""
 
-let grid = sample |> toGrid
-let allantis = genAllAntinodes grid
-printfn $"{allantis |> Seq.length}"
-let fullGrid = addAntis grid allantis
-printfn $"{fullGrid.toString}"
-// todo: grid looks right, I count 13 # + an A in the right spot
-//       why is allantis len = 17??
+
 // todo: useful utils: grid from char list, grid.show (print)
