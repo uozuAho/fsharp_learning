@@ -9,7 +9,10 @@ Remember to use asserts!
 fsi.ShowDeclarationValues <- false
 
 #load "MyUtils.fsx"
+#load "Assert.fsx"
+#load "CharGrid.fsx"
 open MyUtils
+open Assert
 
 let sampleStr = "
 3   4
@@ -37,7 +40,10 @@ let solve2 lines =
 // manually save to input.txt for now
 // let realInput = aocFetchInput 2024 7
 let input = System.IO.File.ReadAllLines "input.txt"
-let sample = toLines sampleStr
+let sample = str2Lines sampleStr
+
+// let lineNumbers = sample |> linesAsNumbers
+// let grid = CharGrid.fromLines sample
 
 printfn "Part 1"
 printfn "Sample:"
