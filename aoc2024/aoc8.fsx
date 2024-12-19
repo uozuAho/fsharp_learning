@@ -15,6 +15,8 @@ repl:  dotnet fsi --define:DEBUG --use:aoc8.fsx
 fsi.ShowDeclarationValues <- false
 
 #load "MyUtils.fsx"
+#load "CharGrid.fsx"
+
 open MyUtils
 
 let sampleStr = "
@@ -38,7 +40,7 @@ let toGrid lines =
         cells = chars
         height = chars.Length
         width = chars.[0].Length
-    }
+    } : CharGrid.Grid
 
 let distTo pos1 pos2 =
     let x1, y1 = pos1
@@ -55,7 +57,7 @@ let antiPos pos1 pos2 =
     xyop (+) pos2 (x, y)
 
 // defaultdict may be handy here. No standard impl
-let findAllAntennaPos (grid:CharGrid) =
+let findAllAntennaPos (grid:CharGrid.Grid) =
     grid.allCells
     |> Seq.where (fun x -> snd x <> '.')
     |> map (fun x -> snd x, fst x)
@@ -82,7 +84,7 @@ let genAllAntinodes grid =
     }
     antis |> Seq.distinct
 
-let addAntis grid antis =
+let addAntis (grid:CharGrid.Grid) antis =
     let lines = seq {
         for row in [0..grid.height - 1] do
             let rowchars = seq {
@@ -108,7 +110,7 @@ let solve1 (lines:seq<string>) =
 part 2 : antinodes are created repeatedly in line, not just once
 *)
 
-let antiPosRepeat pos pos2 (grid:CharGrid) =
+let antiPosRepeat pos pos2 (grid:CharGrid.Grid) =
     (pos, pos2)
     |> Seq.unfold (fun ps ->
         let p1, p2 = ps
@@ -159,6 +161,3 @@ printfn ""
 printfn "Real input:"
 printfn $"{solve2 input}"
 printfn ""
-
-
-// todo: useful utils: grid from char list, grid.show (print)
