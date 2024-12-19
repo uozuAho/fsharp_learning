@@ -16,7 +16,7 @@ type Grid =
                 for colNum, char in enumerate row do
                     ((colNum, rowNum), char)
         }
-    member this.toString =
+    member this.show =
         for row in this.cells do
             let str = new System.String(row |> List.toArray)
             printfn $"{str}"
@@ -27,5 +27,20 @@ type Grid =
         x >= 0 && x < this.width
         && y >= 0 && y < this.height
 
+let fromLines lines =
+    let chars = lines |> map str2chars |> Seq.toList
+    {
+        cells = chars
+        height = chars.Length
+        width = chars.[0].Length
+    }
 
-// todo: useful utils: grid from char list, grid.show (print)
+let fromStr (str:string) =
+    str.Split('\n') |> Array.where ((<>) "") |> fromLines
+
+let fromChars height width xy2char =
+    [for row in [0..height - 1] do
+        new System.String([|for col in [0..width - 1] -> xy2char col row|])]
+    |> fromLines
+
+let show (grid:Grid) = grid.show

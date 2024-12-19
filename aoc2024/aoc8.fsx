@@ -34,14 +34,6 @@ let sampleStr = "
 ............
 "
 
-let toGrid lines =
-    let chars = lines |> map str2chars |> Seq.toList
-    {
-        cells = chars
-        height = chars.Length
-        width = chars.[0].Length
-    } : CharGrid.Grid
-
 let distTo pos1 pos2 =
     let x1, y1 = pos1
     let x2, y2 = pos2
@@ -84,27 +76,20 @@ let genAllAntinodes grid =
     }
     antis |> Seq.distinct
 
-let addAntis (grid:CharGrid.Grid) antis =
-    let lines = seq {
-        for row in [0..grid.height - 1] do
-            let rowchars = seq {
-                for col in [0..grid.width - 1] do
-                    let gridchar = grid.charAt col row
-                    if grid.charAt col row <> '.' then gridchar
-                    else if Seq.contains (col, row) antis then '#'
-                    else '.'
-            }
-            let strarr = rowchars |> Seq.toArray
-            new System.String(strarr)
-    }
-    toGrid lines
+let withAntis (grid:CharGrid.Grid) antis =
+    let xy2char x y =
+        let gridchar = grid.charAt x y
+        if gridchar <> '.' then gridchar
+        else if Seq.contains (x, y) antis then '#'
+        else '.'
+    CharGrid.fromChars grid.height grid.width xy2char
 
 let solve1 (lines:seq<string>) =
-    let grid = lines |> toGrid
-    let allantis = genAllAntinodes grid |> where grid.inBounds
-    printfn $"{allantis |> Seq.length}"
-    // let fullGrid = addAntis grid allantis
-    // printfn $"{fullGrid.toString}"
+    let grid = lines |> CharGrid.fromLines
+    let antis = genAllAntinodes grid |> where grid.inBounds
+    printfn $"{antis |> Seq.length}"
+    // grid.show
+    // CharGrid.show (withAntis grid antis)
 
 (*
 part 2 : antinodes are created repeatedly in line, not just once
@@ -136,11 +121,11 @@ let genAllAntinodesRepeat grid =
     antis |> Seq.distinct
 
 let solve2 lines =
-    let grid = lines |> toGrid
+    let grid = lines |> CharGrid.fromLines
     let allantis = genAllAntinodesRepeat grid |> where grid.inBounds
     printfn $"{allantis |> Seq.length}"
-    // let fullGrid = addAntis grid allantis
-    // printfn $"{fullGrid.toString}"
+    // grid.show
+    // CharGrid.show (withAntis grid antis)
 
 // todo: this needs session token to work
 // manually save to input.txt for now
