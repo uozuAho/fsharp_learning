@@ -131,7 +131,7 @@ let solve2 lines =
 // manually save to input.txt for now
 // let realInput = aocFetchInput 2024 7
 let input = System.IO.File.ReadAllLines "input.txt"
-let sample = toLines sampleStr
+let sample = str2Lines sampleStr
 
 printfn "Part 1"
 printfn "Sample:"
