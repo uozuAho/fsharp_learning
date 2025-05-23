@@ -1,12 +1,10 @@
 // Copy of https://chrispenner.ca/posts/interview
 // run with dotnet fsi <this file>
 
-#load "utils/ScriptTest.fsx"
-open ScriptTest
+#r "nuget: Faqt"
+open Faqt
 
-let tests = Tests()
-
-
+// -----------------------------------------
 // palindrome
 let reverse = Seq.rev >> Seq.toArray >> System.String
 
@@ -17,6 +15,7 @@ printfn "palindromes"
 printfn $"""racecar {is_palindrome "racecar"}"""
 
 
+// -----------------------------------------
 // fizzbuzz
 let fizz n =
     match n % 3, n % 5 with
@@ -30,7 +29,10 @@ printfn "-----------------------------"
 printfn "fizzbuzz"
 [1..10] |> List.iter (fizz >> printfn "%s")
 
-// combinations
+
+// -----------------------------------------
+// sum to n problem
+
 let rec combinations n a =
     match n, a with
     | 0, _ -> [[]]
@@ -40,11 +42,24 @@ let rec combinations n a =
         subs @ adsf
     | _, [] -> []
 
-tests.add "combinations.empty" (assertEq (combinations 3 []) [])
+(combinations 0 []).Should().Be [[]]
+(combinations 3 []).Should().Be []
+(combinations 3 [1]).Should().Be []
+(combinations 3 [1;2;3]).Should().Be [[1;2;3]]
+(combinations 1 [1;2;3]).Should().Be [[1];[2];[3]]
 
+let sumNToTotal n total (list:list<int>) =
+    let sumsToTotal sub = total = List.sum sub
+    combinations n list |> List.filter sumsToTotal
 
 printfn "-----------------------------"
-printfn "combinations"
-printfn $"{combinations 1 [1;2;3]}"
+printfn "sumNToTotal"
+printfn $"{sumNToTotal 3 15 [2; 5; 3; 10; 4; 1; 0]}"
 
-tests.run
+let sumAnyToTarget total list =
+    [for n in [0..List.length list] -> sumNToTotal n total list]
+        |> List.filter (List.isEmpty >> not)
+        |> List.concat
+
+printfn "sumAnyToTarget 15 [2; 5; 3; 10; 4; 1; 0]"
+sumAnyToTarget 15 [2; 5; 3; 10; 4; 1; 0] |> List.iter (fun x -> printfn "  %A" x)

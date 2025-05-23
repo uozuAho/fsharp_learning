@@ -1,5 +1,13 @@
 (*
 Script test helper
+
+Faqt has nice assertions and works in scripts. Just keeping this as an example.
+
+Add to your script:
+let tests = Tests()
+tests.add (assertEq 1 1)
+tests.add (fun _ -> true, "I passed!")
+tests.run
 *)
 
 type TestFunc = unit -> bool * string
