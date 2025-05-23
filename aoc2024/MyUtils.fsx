@@ -9,6 +9,9 @@ let where seq = Seq.where seq
 // strings
 let str2chars (str:string) = str.ToCharArray() |> Array.toList
 let str2Lines (str:string) = str.Split('\n') |> Seq.where ((<>) "")
+let chars2str chars =
+    let arr = Seq.toArray chars
+    new System.String(arr)
 
 let reMatches pattern str =
     let regex = System.Text.RegularExpressions.Regex(pattern)

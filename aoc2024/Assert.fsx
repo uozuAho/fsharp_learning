@@ -1,3 +1,4 @@
+open System
 open System.Diagnostics
 
 let private getCallStack () =
