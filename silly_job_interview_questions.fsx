@@ -1,6 +1,12 @@
 // Copy of https://chrispenner.ca/posts/interview
 // run with dotnet fsi <this file>
 
+#load "utils/ScriptTest.fsx"
+open ScriptTest
+
+let tests = Tests()
+
+
 // palindrome
 let reverse = Seq.rev >> Seq.toArray >> System.String
 
@@ -24,13 +30,6 @@ printfn "-----------------------------"
 printfn "fizzbuzz"
 [1..10] |> List.iter (fizz >> printfn "%s")
 
-// todo: add to cheatsheet
-// list append ::
-// list concat @
-// list expression
-
-// todo: add some tests for combinations
-
 // combinations
 let rec combinations n a =
     match n, a with
@@ -41,7 +40,11 @@ let rec combinations n a =
         subs @ adsf
     | _, [] -> []
 
+tests.add "combinations.empty" (assertEq (combinations 3 []) [])
+
 
 printfn "-----------------------------"
 printfn "combinations"
 printfn $"{combinations 1 [1;2;3]}"
+
+tests.run
