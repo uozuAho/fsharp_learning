@@ -63,3 +63,32 @@ let sumAnyToTarget total list =
 
 printfn "sumAnyToTarget 15 [2; 5; 3; 10; 4; 1; 0]"
 sumAnyToTarget 15 [2; 5; 3; 10; 4; 1; 0] |> List.iter (fun x -> printfn "  %A" x)
+
+
+// -----------------------------------------
+// anagrams
+let is_anagram s1 s2 =
+    let sortChars s = s |> Seq.sort
+    Seq.compareWith compare (sortChars s1) (sortChars s2) = 0
+
+(is_anagram "elbow" "below").Should().Be true
+(is_anagram "bored" "road").Should().Be false
+(is_anagram "stressed" "desserts").Should().Be true
+
+
+
+// -----------------------------------------
+// word frequency
+let most_common_word (s:string) =
+    let top =
+        s.Split()
+        |> Array.where (fun x -> x <> "")
+        |> Array.countBy id
+        |> Array.sortByDescending snd
+        |> Array.tryHead
+    match top with
+    | Some x -> Some (fst x)
+    | None -> None
+
+(most_common_word "a b c c").Should().Be (Some "c")
+(most_common_word "").Should().Be None
